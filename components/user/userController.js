@@ -11,7 +11,12 @@ router.get('/', function(req, res){
         res.json({
             message:"konek broo"
         });
-    });
+    })
+    .catch(err=>{
+        // res.status(400).json({
+        //     message:err
+        // })
+    })
 });
 
 router.get('/:id', function(req, res){
@@ -29,7 +34,7 @@ router.get('/name=:name', function(req, res){
 router.post('/register',function(req, res, next){
     bcrypt.hash(req.body.password, 10, function(err, hash) {
         if (err) {
-            return res.status(500).json({
+            return res.status(501).json({
                 error:err
             });
         }else{
@@ -48,7 +53,7 @@ router.post('/register',function(req, res, next){
                     next();                        
                 })
                 .catch(err=>{
-                    res.status(500).json({
+                    res.status(501).json({
                         message:err
                     });
                 });
@@ -57,29 +62,21 @@ router.post('/register',function(req, res, next){
 })
 
 router.get('/verifikasi/:email',function(req,res){
-    // if (User.findOne({email:req.body.email})==null){
-    //     res.json({
-    //         message:"ERROR"
-    //     });
-    // }else{
-    //     User.findOneAndUpdate({emai:req.body.email},{active:1})
-    //     res.json({
-    //         message:"Sukses Aktivasi"
-    //     });
-    // }
-
-
     User.findOne({email:req.params.email}).then(function(result){
         if (result === null) {
-            return res.status(500).json({
-                message:"Eroor"
+            return res.status(400).json({
+                message:"Verifikasi Email Error"
             })
         }else{
             //belum selesai
-            User.findOneAndUpdate({email:req.params.email},{$set:{activate:1}},function(result) {
-              res.status(200).json({
-                  message:result
-              })  
+            User.findOneAndUpdate({email:req.params.email},{$set:{active:1}}).then(
+                res.status(200).json({
+                    message:"Email Berhasil Diverifikasi"
+                })     
+            ).catch(err=>{
+                res.status(400).json({
+                    message:"Something Error"
+                })
             })
         }
     })
@@ -102,37 +99,39 @@ router.post('/login/email',function(req, res){
             });                   
            }
            if (result) {
-               const UserToken = jwt.sign({
-                   _id:user._id,
-                   username:user.username,
-                   nama:user.nama,
-                   no_hp:user.no_hp,
-                   email:user.email,
-                   
-
-               },
-               'secret',{
-                   expiresIn:'2h'
+               if (user.active == 1) {
+                   const UserToken = jwt.sign({
+                       _id: user._id,
+                       username: user.username,
+                       nama: user.nama,
+                       no_hp: user.no_hp,
+                       email: user.email,
+                       active: user.active,
+                   },
+                       'secret', {
+                           expiresIn: '2h'
+                       }
+                   );
+                   return res.status(200).json({
+                       message: "Success",
+                       token: UserToken
+                   });
+               }else{
+                   res.status(400).json({
+                       message:"Akun Anda belum Diverifikasi"
+                   })
                }
-             );
-             return res.status(200).json({
-                 message:"Success",
-                 token:UserToken
-             });
-           }
-           return res.status(401).json({
-               message:"failed"
-           });             
+           }            
         })
-        .catch(err=>{
-            res.status(500).json({
-                error:err
-            });
+    })
+    .catch(err=>{
+        res.status(501).send({
+            err
         });
     });
-})
+});
 
-router.post('/login/no_hp',function(req, res){
+router.post('/login/nohp',function(req, res){
     User.findOne({no_hp:req.body.no_hp}).exec().then(function(user){
         bcrypt.compare(req.body.password, user.password, function(err, result) {
            if (err) {
@@ -141,34 +140,80 @@ router.post('/login/no_hp',function(req, res){
             });                   
            }
            if (result) {
-               const UserToken = jwt.sign({
-                   _id:user._id,
-                   username:user.username,
-                   nama:user.nama,
-                   no_hp:user.no_hp,
-                   email:user.email,
-                   
-
-               },
-               'secret',{
-                   expiresIn:'2h'
+               if (user.active == 1) {
+                   const UserToken = jwt.sign({
+                       _id: user._id,
+                       username: user.username,
+                       nama: user.nama,
+                       no_hp: user.no_hp,
+                       email: user.email,
+                       active: user.active,
+                   },
+                       'secret', {
+                           expiresIn: '2h'
+                       }
+                   );
+                   return res.status(200).json({
+                       message: "Success",
+                       token: UserToken
+                   });
+               }else{
+                   res.status(400).json({
+                       message:"Akun Anda belum Diverifikasi"
+                   })
                }
-             );
-             return res.status(200).json({
-                 message:"Success",
-                 token:UserToken
-             });
            }
            return res.status(401).json({
                message:"failed"
            });             
         })
-        .catch(err=>{
-            res.status(500).json({
-                error:err
-            });
+        
+    })
+    .catch(err=>{
+        res.status(501).json({
+            error:err
         });
-    });
+    })
+})
+
+//Belum Ditambah OR untuk verifikasi no_hp sekaligus
+//TODO:NOT COMPLETED
+router.post('/lupapassword',function(req,res) {
+    // console.log(req.body.email);
+    // res.json({key:req.body.email})
+    User.findOne({email:req.body.email})
+        .then(function(result) {
+            a = User.findOne({email:req.body.email});
+            
+            if (result===null) {
+                res.send("email tidak ditemukan")
+            }else{
+                bcrypt.hash(req.body.new_password, 10,function(err,hash){
+                    if (err) {
+                        res.send(err)
+                    }else{
+                        User.update(a,{ $set: { password:hash}},function(response){
+                            res.send("Password telah diubah silahkan login");
+                        })
+                    }
+                })
+
+                
+                
+                    
+                // User.updateOne({email:result.email},{$set:{
+                //     password:reset
+                // }}).then(
+                //     res.send(result)
+                    
+                // )
+            }
+        })
+        .catch(err=>{
+            res.send({
+                message:err
+            })
+        })
 })
 
 router.patch('/:id',function(req, res){

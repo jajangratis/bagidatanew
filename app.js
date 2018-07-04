@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const port = process.env.port ||9696;
-const host = '0.0.0.0';
+const host = '192.168.88.56';
 const bodyParser = require('body-parser');
 
 const User = require('./components/user/userController')
@@ -28,7 +28,7 @@ app.use(function(req, res, next) {
     if(allowedOrigins.indexOf(origin) > -1){
          res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    //res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:8020');
+    res.header('Access-Control-Allow-Origin', '192.168.88.56:9696');
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', true);
@@ -45,7 +45,7 @@ app.use(function(req, res, next) {
 // });
 
 app.listen(port, host, function() {
-    console.log('Listening to port:  ' + port);
+    console.log('Listening to port: ' + port);
 });
 
 // app.connect().use(connect.static('public')).listen(9696, "0.0.0.0");

@@ -4,16 +4,23 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "set DEBUG=express:* & nodemon ./bin/www",
+    "start": "nodemon ./bin/www"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "debug": "^3.1.0",
     "express": "^4.16.3",
+    "googleapis": "^32.0.0",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.0",
+    "morgan": "^1.9.0",
     "nodemon": "^1.17.5"
   }
 }
