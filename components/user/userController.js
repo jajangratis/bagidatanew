@@ -91,8 +91,8 @@ router.get('/verifikasi/email/:email',function(req,res){
 
 
 
-router.post('/login/email',function(req, res){
-    User.findOne({email:req.body.email}).exec().then(function(user){
+router.post('/login',function(req, res){
+    User.findOne({$or:[{email:req.body.email},{no_hp:req.body.no_hp}]}).exec().then(function(user){
         bcrypt.compare(req.body.password, user.password, function(err, result) {
            if (err) {
             return res.status(401).json({
