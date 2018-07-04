@@ -20,8 +20,8 @@ const UserSchema = new Schema({
     },
     no_hp:{
         type:String,
-        maxlength:13
-        
+        maxlength:13,
+        unique:true
     },
     active:{
         type:Number,

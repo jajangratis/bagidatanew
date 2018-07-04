@@ -61,7 +61,7 @@ router.post('/register',function(req, res, next){
     })
 })
 
-router.get('/verifikasi/:email',function(req,res){
+router.get('/verifikasi/email/:email',function(req,res){
     User.findOne({email:req.params.email}).then(function(result){
         if (result === null) {
             return res.status(400).json({
@@ -88,6 +88,7 @@ router.get('/verifikasi/:email',function(req,res){
     User.findOne({email:req.params.email})
         
 })
+
 
 
 router.post('/login/email',function(req, res){
@@ -180,33 +181,23 @@ router.post('/login/nohp',function(req, res){
 //TODO:NOT COMPLETED
 router.post('/lupapassword',function(req,res) {
     // console.log(req.body.email);
-    // res.json({key:req.body.email})
-    User.findOne({email:req.body.email})
+    // res.json({key:req.body.email})||
+    User.findOne({$or:[{email:req.body.email},{no_hp:req.body.no_hp}]})
         .then(function(result) {
-            a = User.findOne({email:req.body.email});
-            
+            a = User.findOne({$or:[{email:req.body.email},{no_hp:req.body.no_hp}]});
+            b = User.findOne({no_hp:req.body.no_hp});
             if (result===null) {
-                res.send("email tidak ditemukan")
+                res.send("email/No handphone tidak ditemukan")
             }else{
                 bcrypt.hash(req.body.new_password, 10,function(err,hash){
                     if (err) {
                         res.send(err)
                     }else{
-                        User.update(a,{ $set: { password:hash}},function(response){
+                        User.update(b,{ $set: { password:hash}},function(response){
                             res.send("Password telah diubah silahkan login");
                         })
                     }
                 })
-
-                
-                
-                    
-                // User.updateOne({email:result.email},{$set:{
-                //     password:reset
-                // }}).then(
-                //     res.send(result)
-                    
-                // )
             }
         })
         .catch(err=>{
@@ -215,6 +206,8 @@ router.post('/lupapassword',function(req,res) {
             })
         })
 })
+
+
 
 router.patch('/:id',function(req, res){
     User.findOneAndUpdate({_id:req.params.id},req.body).then(function(result){
