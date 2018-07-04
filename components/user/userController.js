@@ -3,6 +3,7 @@ const User = require('./userModel');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 
 router.get('/', function(req, res){
@@ -34,7 +35,7 @@ router.get('/name=:name', function(req, res){
 router.post('/register',function(req, res, next){
     bcrypt.hash(req.body.password, 10, function(err, hash) {
         if (err) {
-            return res.status(501).json({
+            return res.status(400).json({
                 error:err
             });
         }else{
@@ -53,8 +54,8 @@ router.post('/register',function(req, res, next){
                     next();                        
                 })
                 .catch(err=>{
-                    res.status(501).json({
-                        message:err
+                    res.status(400).json({
+                        message:"Harap Isi email & Nomor telepon dan pastikan unik"
                     });
                 });
         }
@@ -92,7 +93,7 @@ router.get('/verifikasi/email/:email',function(req,res){
 
 
 router.post('/login',function(req, res){
-    User.findOne({$or:[{email:req.body.email},{no_hp:req.body.no_hp}]}).exec().then(function(user){
+    User.findOne({$or:[{email:req.body.cek},{no_hp:req.body.cek}]}).exec().then(function(user){
         bcrypt.compare(req.body.password, user.password, function(err, result) {
            if (err) {
             return res.status(401).json({
@@ -126,66 +127,87 @@ router.post('/login',function(req, res){
         })
     })
     .catch(err=>{
-        res.status(501).send({
+        res.status(400).send({
             err
         });
     });
 });
 
-router.post('/login/nohp',function(req, res){
-    User.findOne({no_hp:req.body.no_hp}).exec().then(function(user){
-        bcrypt.compare(req.body.password, user.password, function(err, result) {
-           if (err) {
-            return res.status(401).json({
-                message:"Unauthorized Access"
-            });                   
-           }
-           if (result) {
-               if (user.active == 1) {
-                   const UserToken = jwt.sign({
-                       _id: user._id,
-                       username: user.username,
-                       nama: user.nama,
-                       no_hp: user.no_hp,
-                       email: user.email,
-                       active: user.active,
-                   },
-                       'secret', {
-                           expiresIn: '2h'
-                       }
-                   );
-                   return res.status(200).json({
-                       message: "Success",
-                       token: UserToken
-                   });
-               }else{
-                   res.status(400).json({
-                       message:"Akun Anda belum Diverifikasi"
-                   })
-               }
-           }
-           return res.status(401).json({
-               message:"failed"
-           });             
+router.post('/verifikasi/sms',function(req,res) {
+    const testtoken = "85791d7835626f2ce1cf76b6d9be5e6f"
+    axios({
+        url:"https://api.mainapi.net/smsnotification/1.0.0",
+        header:{
+            Authorization:"Bearer "+testtoken,
+
+        },
+        data:{
+            msisdn:req.body.msisdn, //nanti ganti sama no_hp di database,
+            content:req.body.content
+        }
+    }).then(function (response) {
+        res.json({
+            message:response
         })
-        
-    })
-    .catch(err=>{
-        res.status(501).json({
-            error:err
-        });
+    }).catch(err=>{
+        res.json({message:err})
     })
 })
+
+// router.post('/login/nohp',function(req, res){
+//     User.findOne({no_hp:req.body.no_hp}).exec().then(function(user){
+//         bcrypt.compare(req.body.password, user.password, function(err, result) {
+//            if (err) {
+//             return res.status(401).json({
+//                 message:"Unauthorized Access"
+//             });                   
+//            }
+//            if (result) {
+//                if (user.active == 1) {
+//                    const UserToken = jwt.sign({
+//                        _id: user._id,
+//                        username: user.username,
+//                        nama: user.nama,
+//                        no_hp: user.no_hp,
+//                        email: user.email,
+//                        active: user.active,
+//                    },
+//                        'secret', {
+//                            expiresIn: '2h'
+//                        }
+//                    );
+//                    return res.status(200).json({
+//                        message: "Success",
+//                        token: UserToken
+//                    });
+//                }else{
+//                    res.status(400).json({
+//                        message:"Akun Anda belum Diverifikasi"
+//                    })
+//                }
+//            }
+//            return res.status(401).json({
+//                message:"failed"
+//            });             
+//         })
+        
+//     })
+//     .catch(err=>{
+//         res.status(400).json({
+//             error:err
+//         });
+//     })
+// })
 
 //Belum Ditambah OR untuk verifikasi no_hp sekaligus
 //TODO:NOT COMPLETED
 router.post('/lupapassword',function(req,res) {
     // console.log(req.body.email);
     // res.json({key:req.body.email})||
-    User.findOne({$or:[{email:req.body.email},{no_hp:req.body.no_hp}]})
+    User.findOne({$or:[{email:req.body.cek},{no_hp:req.body.cek}]})
         .then(function(result) {
-            a = User.findOne({$or:[{email:req.body.email},{no_hp:req.body.no_hp}]});
-            b = User.findOne({no_hp:req.body.no_hp});
+            a = User.findOne({$or:[{email:req.body.cek},{no_hp:req.body.cek}]});
+            b = User.findOne({no_hp:req.body.cek});
             if (result===null) {
                 res.send("email/No handphone tidak ditemukan")
             }else{
