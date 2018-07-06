@@ -5,23 +5,11 @@ const UserSchema = new Schema({
     username:{
         type:String,
         required:true,
+        unique:true
     },
     password:{
         type:String,
-        required:true,
-    },
-    nama:{
-        type:String,
-    },
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    no_hp:{
-        type:String,
-        maxlength:13,
-        unique:true
+        required:true
     },
     active:{
         type:Number,

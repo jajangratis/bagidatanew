@@ -1,10 +1,18 @@
 const express = require('express');
 const app = express();
-const port = process.env.port ||9696;
-const host = '192.168.88.56';
+
+// Kantor
+// const host = '192.168.88.56';
+// const port = process.env.port ||9696;
+
+// bootcamp
+const host = '0.0.0.0';
+const port = 5000;
+
 const bodyParser = require('body-parser');
 
 const User = require('./components/user/userController')
+
 
 //connection
 require('./lib/connection');
@@ -14,6 +22,7 @@ app.use(bodyParser.json());
 
 //router
 app.use('/api/user', User);
+
 
 //error middleware
 app.use(function(err,req,res,next){
@@ -28,7 +37,9 @@ app.use(function(req, res, next) {
     if(allowedOrigins.indexOf(origin) > -1){
          res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    res.header('Access-Control-Allow-Origin', '192.168.88.56:9696');
+    // res.header('Access-Control-Allow-Origin', '192.168.88.56:9696');
+    res.header('Access-Control-Allow-Origin', '192.168.0.12:5000,https://api.mainapi.net/token');
+
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', true);
