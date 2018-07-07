@@ -15,6 +15,11 @@ const UserSchema = new Schema({
         type:Number,
         maxlength:1,
         default:0
+    },
+    verificationkey:{
+        type:Number,
+        maxlength:6,
+        default:111111
     }
 })
 

@@ -24,19 +24,36 @@ var fullToken
 var GlobalToken 
 var getToken
 
-function apiToken(key,secret) {
-    var command = "curl -X POST --header 'Content-type:application/x-www-form-urlencoded' --header 'authorization:Basic Q3FSRUdpR2ZxOUROdEhhckRQcnBXdjlYWkFnYTpSNnBxb3pxRldVSEhDMzhBdFdxekFhcXhWZklh' --data 'grant_type=client_credentials' 'https://api.mainapi.net/token' ";
-    child = exec(command, function (error, stdout, stderr) {
-        const test = JSON.parse(stdout)
-        getToken = test.access_token
-        console.log(getToken)
-    })
+function apiToken(keysecret) {
+    // var command = "curl -X POST --header 'Content-type:application/x-www-form-urlencoded' --header 'authorization:Basic Q3FSRUdpR2ZxOUROdEhhckRQcnBXdjlYWkFnYTpSNnBxb3pxRldVSEhDMzhBdFdxekFhcXhWZklh' --data 'grant_type=client_credentials' 'https://api.mainapi.net/token' ";
+    // child = exec(command, function (error, stdout, stderr) {
+    //     const test = JSON.parse(stdout)
+    //     getToken = test.access_token
+    //     console.log(getToken)
+    // })
+    var cred = base64.encode(keysecret)
+    var args = {
+        data: { 
+            'grant_type':'client_credentials'
+        },
+        headers: { 
+            "Authorization" : "Basic "+cred,
+            "Content-Type": "application/x-www-form-urlencoded",
+         }
+    };
+    client.post("https://api.mainapi.net/token", args, function (data, response) {
+        // parsed response body as js object
+        fullToken = data.access_token;
+        res.send(data);
+        // raw response
+        // res.send(response);
+    });
 }
 
 // apiToken("CqREGiGfq9DNtHarDPrpWv9XZAga","R6pqozqFWUHHC38AtWqzAaqxVfIa");
 
 router.post('/gettoken',function(req,res) {
-    var cred = base64.encode("3oj2BGcfQSK56ri8XYHkqY_P374a:ie1GvuNhQXgeJXX6jrVfZl36LG8a")
+    var cred = base64.encode(req.body.keysecret)
     var args = {
         data: { 
             'grant_type':'client_credentials'
@@ -55,35 +72,65 @@ router.post('/gettoken',function(req,res) {
     });
 })
 
-router.get('/verSms/:username',function(req,res) {
-    User.findOne({username:req.params.username})
-        .then(function(data) {
-           if (validator.isEmail(data.username)) {
-               res.send('err')
-           }else{
-            var args = {
-                data: { 
-                    msisdn : data.username, //Nomor User or id,
-                    content: "cek",
-                },
-                headers: { 
-                    "Authorization" : "Bearer d4951e7fd73e99e39c830dd671c4c143",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "Accept":'application/json',
-                 }
-            };
-            client.post("https://api.mainapi.net/smsnotification/1.0.0/messages", args, function (data, response) {
-                // parsed response body as js object
-                // res.send(fullToken)
-                res.send(data);
-                // raw response
-                // res.send(response);
-            });
-           }
+
+router.patch('/verifikasisms',function(req,res) {
+    const verfkey = randomize('0', 6)
+    
+    User.find({username:req.body.username})
+    .then(isi=>{
+        if (isi===null) {
+            res.send('Data Tidak Ditemukan')
+        }else{
+            User.findOneAndUpdate({username:isi},{$set:{verificationkey:verfkey}})
+                .then(result=>{
+                    // const tet = apiToken("fe2NaqqPfw2cAvZ5_2AnCkUnW1Ea:YiYfyz_VK5S3Ms_RhVf5ffN7i2Aa")
+                    //res.send(result)
+                    var args = {
+                        data: {
+                            msisdn: req.body.username, //Nomor User or id,
+                            content: "Nomor Verifikasi Anda " + verfkey,
+                        },
+                        headers: {
+                            "Authorization": "Bearer "+fullToken,
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "Accept": 'application/json',
+                        }
+                    };
+                    client.post("https://api.mainapi.net/smsnotification/1.0.0/messages", args, function (result1, response) {
+                        // parsed response body as js object
+                        // res.send(fullToken)
+                        res.send(result1);
+                        // raw response
+                        // res.send(response);
+                    });
+                })
+                .catch(err=>{
+                    res.send(err)
+                })
+        }
+        
+    })
+    .catch(err=>{
+        res.send(err)
+    })
+})
+
+router.post('/verifikasisms/checking',function(req,res) {
+    User.findOne({username:req.body.username})
+        .then(result=>{
+            if (result.verificationkey == req.body.verificationkey) {
+                User.findByIdAndUpdate({username:result.username},{$set:{active:1}})
+                .then(res.status(200).send("Akun Berhasil diaktivasi"))
+                .catch(err=>{
+                    res.send(err)
+                })
+            }else{
+                res.send('Kode tidak sama silahkan coba lagi')
+            }
         })
         .catch(err=>{
-            console.log(err)
-        })
+            res.send(err)
+        })    
 })
 
 router.post('/login',function(req, res){
@@ -210,7 +257,7 @@ router.get('/verifikasi/email/:username',function(req,res){
                     })
                 })
             }
-            if (validator.isNumeric(req.params.username) && (result.username == req.params.username)) {
+            if (validator.isMobilePhone(req.params.username) && (result.username == req.params.username)) {
                 //bagian validasi pake nomor hape
                 res.send("Verifikasi pake no hp");
             }
@@ -303,7 +350,7 @@ router.get('/email/:id',function(req,res) {
                         to: data.username,
                         subject: 'Aktivasi Akun',
                         text: 'Tinggal Selagkah lagi',
-                        html: "<div align='center'><h1 align='center'>Klik Link ini untuk aktivasi akun anda</h1> <br><form action='bagidata:application/user/verifikasi/email/" + data.username + "' target='_blank' > <input type='submit' value='Klik ini '/></form></div>"
+                        html: "<div align='center'><h1 align='center'>Klik Link ini untuk aktivasi akun anda</h1> <br><a href='http://instancehilmi.000webhostapp.com/deeplink.php?username=" + data.username + "' target='_blank' > <input type='submit' value='Klik ini '/></form></div>"
                     };
                     // send mail with defined transport object
                     transporter.sendMail(mailOptions, (error, info) => {
@@ -341,7 +388,7 @@ router.get('/email/newpassword/:token',function(req,res) {
 })
 
 
-router.post('/lupapassword/email',function(req,res) {
+router.post('/lupapassword',function(req,res) {
     // res.send("req.body.email");
     // res.json({key:req.body.email})||
     User.findOne({username:req.body.username})
@@ -351,50 +398,81 @@ router.post('/lupapassword/email',function(req,res) {
                 res.send("email/No handphone tidak ditemukan")
             }else{
                 // console.log(GlobalToken)
-                nodemailer.createTestAccount((err, account) => {
-                    // create reusable transporter object using the default SMTP transport
-                    let transporter = nodemailer.createTransport({
-                        host: 'bagidata.com',
-                        port:587,
-                        requireTLS: false, //Force TLS
-                        secure: false, // true for 465, false for other ports
-                        auth: {
-                            user: 'hello@bagidata.com', // generated ethereal user
-                            pass: 'modalbangsa' // generated ethereal password
-                        },
-                        tls: {
-                            rejectUnauthorized: false
-                        }
+                if (validator.isEmail(req.body.username)) {
+                    nodemailer.createTestAccount((err, account) => {
+                        // create reusable transporter object using the default SMTP transport
+                        let transporter = nodemailer.createTransport({
+                            host: 'bagidata.com',
+                            port:587,
+                            requireTLS: false, //Force TLS
+                            secure: false, // true for 465, false for other ports
+                            auth: {
+                                user: 'hello@bagidata.com', // generated ethereal user
+                                pass: 'modalbangsa' // generated ethereal password
+                            },
+                            tls: {
+                                rejectUnauthorized: false
+                            }
+                        });
+                
+                        // setup email data with unicode symbols
+                        let mailOptions = {
+                            from: 'hello@bagidata.com',
+                            to: req.body.username,
+                            subject: 'Lupa Password',
+                            text: 'Tinggal Selagkah lagi',
+                            html:"<h1>Klik Link ini untuk mereset password akun anda </h1><br><button align='center'><a  href='http://instancehilmi.000webhostapp.com/deeplink.php?page=change-password&value="+cryptr.encrypt(result._id)+"'>RESET PASSWORD</a></button>"
+                            // html: "<div align='center'><h1 align='center'>Klik Link ini untuk mereset password akun anda</h1> <br><button><a href='http://192.168.88.56:9696/api/user/email/newpassword/"+cryptr.encrypt(result._id)+"'>AKTIVASI</a></button></div>"
+                        };
+                        // send mail with defined transport object
+                        transporter.sendMail(mailOptions, (error, info) => {
+                            if (error) {
+                                return res.status(200).send(error);
+                            }else{
+                                return res.status(200).send('Message sent: %s', info.messageId);
+                            }
+                        });
                     });
-            
-                    // setup email data with unicode symbols
-                    let mailOptions = {
-                        from: 'hello@bagidata.com',
-                        to: req.body.username,
-                        subject: 'Lupa Password',
-                        text: 'Tinggal Selagkah lagi',
-                        html:
-                            "<style>"+ 
-                            "<div align='center'>"+
-                                "<h1 align='center'>"+
-                                    "Klik Link ini untuk mereset password akun anda"+
-                                "</h1>"+
-                                "<br>"+
-                                "<button>"+
-                                    "<a href='bagidata://application/lupapassword/"+cryptr.encrypt(result._id)+"'>RESET PASSWORD</a>"+
-                                "</button>"+
-                                "</div>"
-                        // html: "<div align='center'><h1 align='center'>Klik Link ini untuk mereset password akun anda</h1> <br><button><a href='http://192.168.88.56:9696/api/user/email/newpassword/"+cryptr.encrypt(result._id)+"'>AKTIVASI</a></button></div>"
-                    };
-                    // send mail with defined transport object
-                    transporter.sendMail(mailOptions, (error, info) => {
-                        if (error) {
-                            return res.status(200).send(error);
+                }else{
+                    const verfkey = randomize('0', 6)
+                    User.find({username:req.body.username})
+                        .then(isi=>{
+                        if (isi===null) {
+                            res.send('Data Tidak Ditemukan')
                         }else{
-                            return res.status(200).send('Message sent: %s', info.messageId);
-                        }
-                    });
-                });
+                            User.findOneAndUpdate({ username: isi }, { $set: { verificationkey: verfkey } })
+                                .then(result => {
+                            // const tet = apiToken("fe2NaqqPfw2cAvZ5_2AnCkUnW1Ea:YiYfyz_VK5S3Ms_RhVf5ffN7i2Aa")
+                            //res.send(result)
+                            var args = {
+                                data: {
+                                    msisdn: req.body.username, //Nomor User or id,
+                                    content: "Untuk mereset password Anda " + verfkey,
+                                },
+                                headers: {
+                                    "Authorization": "Bearer "+fulltoken,
+                                    "Content-Type": "application/x-www-form-urlencoded",
+                                    "Accept": 'application/json',
+                                }
+                            };
+                            client.post("https://api.mainapi.net/smsnotification/1.0.0/messages", args, function (result1, response) {
+                                // parsed response body as js object
+                                // res.send(fullToken)
+                                res.send(result1);
+                                // raw response
+                                // res.send(response);
+                            });
+                        })
+                        .catch(err => {
+                            res.send(err)
+                        })
+                }
+
+            })
+            .catch(err => {
+                res.send(err)
+            })
+                }
             }
         })
         .catch(err=>{
@@ -407,7 +485,7 @@ router.post('/lupapassword/email',function(req,res) {
 
 //Belum Ditambah OR untuk verifikasi no_hp sekaligus
 //TODO:NOT COMPLETED
-router.post('/lupapassword',function(req,res) {
+router.post('/lupapassword/reset',function(req,res) {
     // console.log(req.body.email);
     // res.json({key:req.body.email})||
     User.findOne({username:req.body.username})
@@ -416,7 +494,7 @@ router.post('/lupapassword',function(req,res) {
             if (result===null) {
                 res.send("email/No handphone tidak ditemukan")
             }else{
-                if (validator.isEmail(req.body.username)) {
+                if (validator.isEmail(req.body.username)||validator.isMobilePhone(req.body.username)) {
                     bcrypt.hash(req.body.new_password, 10,function(err,hash){
                         if (err) {
                             res.send(err)
@@ -426,10 +504,12 @@ router.post('/lupapassword',function(req,res) {
                             })
                         }
                     })
+                }else{
+                    res.send('data tidak valid')
                 }
-                if (validator.isMobilePhone(req.body.username,"any")) {
-                    console.log('lupa password mobile')
-                }
+                // if (validator.isMobilePhone(req.body.username,"any")) {
+                //     console.log('lupa password mobile')
+                // }
             }
         })
         .catch(err=>{

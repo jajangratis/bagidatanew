@@ -6,8 +6,8 @@ const app = express();
 // const port = process.env.port ||9696;
 
 // bootcamp
-const host = '0.0.0.0';
-const port = 5000;
+const host = '192.168.0.12';
+const port = process.env.port || 9696;
 
 const bodyParser = require('body-parser');
 
@@ -38,7 +38,8 @@ app.use(function(req, res, next) {
          res.setHeader('Access-Control-Allow-Origin', origin);
     }
     // res.header('Access-Control-Allow-Origin', '192.168.88.56:9696');
-    res.header('Access-Control-Allow-Origin', '192.168.0.12:5000,https://api.mainapi.net/token');
+    // res.header('Access-Control-Allow-Origin', '192.168.88.56:9696,192.168.0.12:5000,https://api.mainapi.net/token');
+    res.header('Access-Control-Allow-Origin', '192.168.0.12:5000');
 
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
