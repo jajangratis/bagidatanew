@@ -138,7 +138,7 @@ router.post('/login',function(req, res){
     // const test = bcrypt.compare(req.body.password, user.password)
     User.findOne({username:req.body.username}).exec().then(function(user){
         if (user===null) {
-            res.status(400).send("username/password Tidak Valid")
+            res.status(422).send("username/password Tidak Valid")
         }else{
             bcrypt.compare(req.body.password,user.password,function(err,hash) {
                 if(hash){
@@ -158,12 +158,12 @@ router.post('/login',function(req, res){
                             result : jwt.decode(GlobalToken)
                         });
                     } else {
-                        res.status(400).json({
+                        res.status(200).json({
                             message: "Akun Anda belum Diverifikasi"
                         })
                     }
                 }else{
-                    res.status(400).json({
+                    res.status(422).json({
                         message:"Username / Password salah"
                     })
                 }
@@ -172,7 +172,7 @@ router.post('/login',function(req, res){
         }
     })
     .catch(err=>{
-        res.status(400).json({
+        res.status(422).json({
             message:"ERROROO"
         })
     })
@@ -185,7 +185,7 @@ router.get('/', function(req, res){
         
     })
     .catch(err=>{
-        res.status(400).send(err)
+        res.status(422).send(err)
     })
 });
 
@@ -203,7 +203,7 @@ router.get('/:id', function(req, res){
 router.post('/register',function(req, res, next){
     bcrypt.hash(req.body.password, 10, function(err, hash) {
         if (err) {
-            return res.status(400).json({
+            return res.status(422).json({
                 error:err
             });
         }else{
@@ -225,12 +225,12 @@ router.post('/register',function(req, res, next){
                         })
                 })
                 .catch(err=>{
-                    res.status(400).json({
+                    res.status(422).json({
                         message:"Pastikan Email atau nomor telepon Unik"
                     });
                 });
             }else{
-                res.status(400).send('Harus Berupa Email atau Nomor Telepon')
+                res.status(422).send('Harus Berupa Email atau Nomor Telepon')
             }
         }
     })
@@ -239,7 +239,7 @@ router.post('/register',function(req, res, next){
 router.get('/verifikasi/email/:username',function(req,res){
     User.findOne({username:req.params.username}).then(function(result){
         if (result === null) {
-            return res.status(400).json({
+            return res.status(422).json({
                 message:"Verifikasi Error"
             })
         }else{
@@ -252,7 +252,7 @@ router.get('/verifikasi/email/:username',function(req,res){
                     })
                     
                 ).catch(err => {
-                    res.status(400).send({
+                    res.status(422).send({
                         message: "Something Error"
                     })
                 })
@@ -310,10 +310,10 @@ router.post('/checking',function(req,res) {
                 res.status(200).send("Akun  dapat dipakai")
             )
             .catch(err=>{
-                res.status(400).send("akun tidak dapat dipakai")
+                res.status(422).send("akun tidak dapat dipakai")
             })
     }else{
-        res.status(400).send("Tolong masukan email")
+        res.status(422).send("Tolong masukan email")
     }
     
 })
@@ -542,7 +542,7 @@ router.post('/gantipassword',function(req,res) {
                         })
                     }else{
                         if (err) {
-                            res.status(400).send("password lama salah")
+                            res.status(422).send("password lama salah")
                         }
                     }
                 })
