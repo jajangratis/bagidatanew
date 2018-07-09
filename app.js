@@ -2,12 +2,12 @@ const express = require('express');
 const app = express();
 
 // Kantor
-// const host = '192.168.88.56';
-// const port = process.env.port ||9696;
+const host = '192.168.88.56';
+const port = process.env.port ||9696;
 
 // bootcamp
-const host = '192.168.0.12';
-const port = process.env.port || 9696;
+// const host = '192.168.0.12';
+// const port = process.env.port || 9696;
 
 const bodyParser = require('body-parser');
 

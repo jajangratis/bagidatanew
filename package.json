@@ -4,9 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "serverdebug": "echo \"Error: no test specified\" && exit 1",
     "dev": "set DEBUG=express:* & nodemon ./bin/www",
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "test" : "mocha"
   },
   "author": "",
   "license": "ISC",
@@ -36,5 +37,8 @@
     "pug": "^2.0.3",
     "randomatic": "^3.0.0",
     "validator": "^10.4.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
