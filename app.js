@@ -11,7 +11,8 @@ const port = process.env.port ||9696;
 
 const bodyParser = require('body-parser');
 
-const User = require('./components/user/userController')
+const User = require('./components/user/userController');
+const Wallet = require('./components/wallet/walletController');
 
 
 //connection
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 
 //router
 app.use('/api/user', User);
+app.use('/api/wallet', Wallet);
 
 
 //error middleware

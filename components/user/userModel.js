@@ -16,6 +16,14 @@ const UserSchema = new Schema({
         maxlength:1,
         default:0
     },
+    poin:{
+        type:Number,
+        default:0
+    },
+    cash:{
+        type:Number,
+        default:0
+    },
     verificationkey:{
         type:Number,
         maxlength:6,
