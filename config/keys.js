@@ -1,0 +1,24 @@
+module.exports = {
+    google:{
+        clientID:'851857976008-s8iq9nj92ea05sedvs4g3d97p2teh43l.apps.googleusercontent.com',
+        clientSecret:'Rizsxo57GHxrh564rrD3Gx4c'
+    },
+    twitter:{
+        consumerKeys:'iWVcbXyKwkcv5bXfXMjsV8ddU',
+        comsumerSecret:'kojd7xPRmj0qSOJsdyFoFS2A1KHYw3CcF1BxPLxyZa1D1rRjx7'
+    },
+    instagram:{
+        clientID:'388002ee0def44448c52a6aa652bf44a',
+        clientSecret:'2177d8bcc1d742a1baee2cc1149551dc'
+    },
+    facebook:{
+        appID:'889240751284487',
+        appSecret:'adc2a1e7172263d0329da1c450b16ece'
+    },
+    mongodb:{
+        dbURI:'mongodb://trian:trianafiansyah1234@ds135061.mlab.com:35061/latgoogleapis'
+    },
+    session:{
+        cookieKey:'bagidata.com'
+    }
+}

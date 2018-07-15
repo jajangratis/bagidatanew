@@ -18,6 +18,9 @@ var Client = require('node-rest-client').Client;
 var client = new Client();
 var base64 = require('base-64');
 var randomize = require('randomatic');
+const passport = require('passport');
+const googleStrategy = require('passport-google-oauth20');
+const keys = require('../../config/keys')
 
 
 var fullToken
@@ -155,7 +158,7 @@ router.post('/login',function(req, res){
                                 expiresIn: '2h'
                             }
                         );
-                        return res.status(200).json({
+                        res.cookie('jwtToken', GlobalToken).status(200).json({
                             message: "Success",
                             token: GlobalToken
                         });
@@ -184,7 +187,7 @@ router.post('/login',function(req, res){
 router.get('/', function(req, res){
     User.find({}).then(function(results){
         res.send(results);
-        
+        // console.log('jwtToken: ', req.cookies);
     })
     .catch(err=>{
         res.status(422).send(err)
@@ -572,26 +575,118 @@ router.delete('/:id',function(req, res){
         })
 })
 
-// router.put('/smsotp',function(req,res) {
-//     axios({
-//         url:"http://api.mainapi.net/smsotp/1.0.1/otp/key/verifications",
-//         method:'put',
-//         headers:{
-//             authorization:"Bearer"+" "+getToken,
-//         },
-//         data:{
-//             phoneNum:'087868434521',
-//             digit:6
-//         }
-
-//     })
-//     .then(function(result) {
-//         res.send(result)
-//     })
-//     .catch(err=>{res.send('err')})
-// })
+///SETUP GOOGLE PLUS API
 
 
+router.get('/auth/google',passport.authenticate('google',{
+    scope:['profile','email']
+}))
+
+router.get('/auth/google/redirect',passport.authenticate('google'),(req,res)=>{
+     console.log(req.user)
+     res.json(req.user)
+    // const data = req.user
+    // User.findOne({googleId:data.googleId})
+    //     .then(login=>{
+    //         // if (login.active == 1) {
+                
+    //         // } else {
+    //         //     res.status(401).json({
+    //         //         message: "Akun Anda belum Diverifikasi"
+    //         //     })
+    //         // }
+    //         GlobalToken = jwt.sign({
+    //             _id: login._id,
+    //             googleId:login.googleId,
+    //             username: login.username,
+    //             active: login.active,
+    //         },
+    //             'secret', {
+    //                 expiresIn: '2h'
+    //             }
+    //         );
+    //         return res.status(200).json({
+    //             message: "Success",
+    //             token: GlobalToken
+    //         });
+    //     })
+    //     .catch(err=>{
+    //         res.send(err)
+    //     })
+})
+
+
+
+
+//SETUP FOR TWITTER
+
+router.get('/auth/twitter',passport.authenticate('twitter',{
+    scope:['profile']
+}))
+
+router.get('/auth/twitter/redirect',passport.authenticate('twitter'),(req,res)=>{
+    // console.log(req.user)
+    //res.json(req.user)
+    //const data = req.user
+    User.findOne({twitterId:req.user.twitterId})
+        .then(login=>{
+            //res.json(login)
+            if (login.active == 1) {
+                GlobalToken = jwt.sign({
+                    _id: login._id,
+                    twitterId:login.twitterId,
+                    username: login.username
+                    
+                },
+                    'secret', {
+                        expiresIn: '2h'
+                    }
+                );
+                res.status(200).json({
+                    message: "Success",
+                    token: GlobalToken
+                })
+            } else {
+                res.status(401).json({
+                    message: "Akun Anda belum Diverifikasi"
+                })
+            }
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    
+})
+
+//SETUP FOR INSTAGRAM PENDING
+
+router.get('/auth/instagram',passport.authenticate('instagram'));
+
+router.get('/auth/instagram/redirect',
+  function(req, res) {
+    // Successful authentication, redirect home.
+    //res.redirect('/');
+    console.log(req)
+    console.log(res)
+  });
+
+
+
+//SETUP FOR FACEBOOK PENDING
+router.get('/auth/facebook',passport.authenticate('facebook'));
+
+router.get('/auth/facebook/redirect',passport.authenticate('facebook'),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    console.log(req.user)
+    res.json(req.user)
+  });
+
+
+router.get('/auth/logout',(req,res)=>{
+    req.logout();
+    res.send('logged out')
+})
 
 
 module.exports = router;

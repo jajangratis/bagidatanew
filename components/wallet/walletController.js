@@ -40,20 +40,20 @@ router.patch('/',function(req,res){
                             res.send("dcdr error")
                         }
                     }
-                    else if (req.body.type=='poin') {
+                    else if (req.body.type=='point') {
                         if (req.body.drcr == 'debit') {
-                            User.updateOne({ _id: req.body.user }, { $inc: { poin: req.body.amount } })
+                            User.updateOne({ _id: req.body.user }, { $inc: { point: req.body.amount } })
                                 .then(test => {
-                                    res.status(200).send("Berhasil Menambah Poin")
+                                    res.status(200).send("Berhasil Menambah point")
                                 })
                                 .catch(err => {
                                     res.status(401).send(err)
                                 })
                         }
                         else if(req.body.drcr == 'kredit'){
-                            User.updateOne({ _id: req.body.user }, { $inc: { poin: -req.body.amount } })
+                            User.updateOne({ _id: req.body.user }, { $inc: { point: -req.body.amount } })
                                 .then(test => {
-                                    res.status(200).send("Poin Dipakai")
+                                    res.status(200).send("point Dipakai")
                                 })
                                 .catch(err => {
                                     res.status(401).send(err)
@@ -62,65 +62,6 @@ router.patch('/',function(req,res){
                     }else{
                         res.send('here')
                     }
-
-                    //DEBIT
-
-                    // if (req.body.drcr == 'debit') {
-                    //     if (req.body.type == 'cash') {
-                    //         //res.send(result)
-                    //         User.updateOne({ _id: req.body.user }, { $inc: { cash: req.body.amount } })
-                    //             .then(test => {
-                    //                 res.status(200).send("Berhasil Menambah Cash")
-                    //             })
-                    //             .catch(err => {
-                    //                 res.status(401).send(err)
-                    //             })
-                    //     }
-                    // }
-                    // if (req.body.drcr == 'debit') {
-                    //     if (req.body.type == "poin" ) {
-                    //     //res.send(result)
-                    //         User.updateOne({_id:req.body.user},{$inc:{poin:req.body.amount}})
-                    //         .then(test=>{
-                    //             res.status(200).send("Berhasil Menambah Poin")
-                    //         })
-                    //         .catch(err=>{
-                    //             res.status(401).send(err)
-                    //         })
-                    //     }
-                    // }
-
-
-                    // //KREDIT
-                    // //else
-                    // if (req.body.drcr == "kredit") {
-                    //     if (req.body.type == "poin" ) {
-                    //     //res.send(result)
-                    //         User.updateOne({_id:req.body.user},{$inc:{poin:-req.body.amount}})
-                    //         .then(test=>{
-                    //             res.status(200).send("Saldo Poin telah dipakai")
-                    //         })
-                    //         .catch(err=>{
-                    //             res.status(401).send(err)
-                    //         })
-                    //     }
-                    // }
-                    // if (req.body.drcr == 'kredit') {
-                    //     if (req.body.type == "cash" ) {
-                    //     //res.send(result)
-                    //         User.updateOne({_id:req.body.user},{$inc:{cash:-req.body.amount}})
-                    //         .then(test=>{
-                    //             res.status(200).send("saldo cash telah dipakai")
-                    //         })
-                    //         .catch(err=>{
-                    //             res.status(401).send(err)
-                    //         })
-                    //     }
-                    // }
-
-                    
-
-
 
                 })
                 .catch(err=>{
@@ -132,7 +73,7 @@ router.patch('/',function(req,res){
         })
 })
 
-router.get('/', function(req, res){
+router.get('/all', function(req, res){
     Wallet.find({}).then(function(results){
         res.send(results);
         // console.log(UserToken)
@@ -141,6 +82,16 @@ router.get('/', function(req, res){
         res.send(err)
     });
 });
+
+router.get('/:userid/:drcr',function(req,res) {
+    Wallet.find({user:req.params.userid,drcr:req.params.drcr})
+        .then(data=>{
+            res.send(data)
+        })
+        .catch(err=>{
+            res.send(err)
+        })
+})
 
 router.delete('/:id', function(req, res){
     Wallet.find({_id:req.params.id}).then(function(results){
