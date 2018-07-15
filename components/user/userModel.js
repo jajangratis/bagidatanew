@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const UniqueValidator = require('mongoose-unique-validator')
-require("../../lib/connection")
+//require("../../lib/connection")
+// const bagidata = mongoose.createConnection('mongodb://192.168.43.84:27017/bagidataswitch');
+const ip = require('../../config/ip')
+mongoose.connect("mongodb://"+ip.hpku+":27017/bagidataswitch");
 
 const UserSchema = new Schema({
     username:{
@@ -47,6 +50,6 @@ const UserSchema = new Schema({
 
 UserSchema.plugin(UniqueValidator)
 
-const UserModel = mongoose.bagidata.model('users', UserSchema);
+const UserModel = mongoose.model('users', UserSchema);
 
 module.exports = UserModel;

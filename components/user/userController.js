@@ -219,7 +219,16 @@ router.post('/register',function(req, res, next){
                     password:hash
                 })
                 regis.save()
+                // mongoose.bagidata.collection('users').insert({
+                //     username:req.body.username,
+                //     password:hash
+                // })
+                // User.insert({
+                //     username:req.body.username,
+                //     password:hash
+                // })
                 .then(function(result) {
+                    console.log(result)
                     User.findOne({_id:result._id})
                         .then(function(data) {
                             res.status(200).send(data)

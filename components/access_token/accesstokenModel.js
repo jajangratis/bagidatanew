@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const userModel = require("../user/userModel");
-require('../../lib/connection')
+// require('../../lib/connection')
+const ip = require('../../config/ip')
+mongoose.connect("mongodb://"+ip.hpku+":27017/bagidataswitch");
 
 const AccesstokenSchema = new Schema({
     id_user:{
@@ -27,6 +29,6 @@ const AccesstokenSchema = new Schema({
 })
 
 
-const AccesstokenModel = mongoose.bagidata.model('access_tokens', AccesstokenSchema);
+const AccesstokenModel = mongoose.model('access_tokens', AccesstokenSchema);
 
 module.exports = AccesstokenModel;

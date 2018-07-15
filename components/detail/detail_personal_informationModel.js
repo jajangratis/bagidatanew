@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const userModel = require("../user/userModel");
-require("../../lib/connection")
+// require("../../lib/connection")
+const ip = require('../../config/ip')
+mongoose.connect("mongodb://"+ip.hpku+":27017/bagidataswitch");
 
 const Detail_Personal_InformationSchema = new Schema({
     field_id:{
@@ -42,6 +44,6 @@ const Detail_Personal_InformationSchema = new Schema({
 })
 
 
-const Detail_Personal_InformationModel = mongoose.bagidata.model('detail_personal_informations', Detail_Personal_InformationSchema);
+const Detail_Personal_InformationModel = mongoose.model('detail_personal_informations', Detail_Personal_InformationSchema);
 
 module.exports = Detail_Personal_InformationModel;

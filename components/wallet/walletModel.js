@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const userModel = require("../user/userModel");
-require("../../lib/connection")
+//require("../../lib/connection")
+const ip = require('../../config/ip')
+mongoose.connect("mongodb://"+ip.hpku+":27017/bagidataswitch");
 
 const WalletSchema = new Schema({
     user:{
@@ -27,6 +29,6 @@ const WalletSchema = new Schema({
 })
 
 
-const WalletModel = mongoose.bagidata.model('wallet', WalletSchema);
+const WalletModel = mongoose.model('wallet', WalletSchema);
 
 module.exports = WalletModel;

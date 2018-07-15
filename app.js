@@ -38,7 +38,7 @@ app.use(passport.initialize());
 app.use(passport.session())
 
 //connection
-require('./lib/connection');
+//require('./lib/connection');
 //require('./lib/crawl_connection');
 
 //body parser

@@ -21,7 +21,7 @@ router.get('/accesstoken',function(req,res) {
 })
 
 router.get('/accesstoken/social_media/:id',function(req,res) {
-    AccessToken.findOneAndRemove({id_social_media:req.params.id})
+    AccessToken.findOne({id_social_media:req.params.id})
         .then(data=>{
             res.json(data)
         })   

@@ -39,6 +39,18 @@ require('set-timezone')('Asia/Jakarta')
 
 
 router.post('/',function (req,res) {
+    var paidornot;
+    User_Personal_Information.find({user:req.body.user,field_id:req.body.field_id})
+        .then(test=>{
+            if(test == null || test == [] || test == 0){
+                paidornot = 0
+            }else{
+                paidornot = 1
+            }
+        })
+        .catch(err=>{
+            console.log(err)
+        })
     User_Personal_Information.updateMany({user:req.body.user},{$set:{endda:new Date(Date.now() - 86400000)}})
         .then(function(data) {
             //var now = new Date()
@@ -53,9 +65,10 @@ router.post('/',function (req,res) {
                     // res.send(data.field_id)
                     Detail_Personal_Infomation.findOne({_id:data.field_id})
                         .then(tb_detail=>{
+                            console.log(tb_detail)
                             if (tb_detail.cash == 0) {
                                 var to_wallet = new Wallet({
-                                    user:data.user,
+                                    user:req.body.user,
                                     type:'point',
                                     amount:tb_detail.point,
                                     drcr:'debit',
@@ -63,13 +76,18 @@ router.post('/',function (req,res) {
                                 })
                                 to_wallet.save()
                                     .then(hasil=>{
-                                        User.updateOne({_id:data.user},{ $inc: { cash: tb_detail.cash, point:tb_detail.point }})
-                                            .then(hasil=>{
-                                                res.send("Selamat Anda Mendapatkan Bonus point Sebesar"+tb_detail.point)
-                                            })
-                                            .catch(err=>{
-                                                res.send(err)
-                                            })
+                                        if (paidornot == 0) {
+                                            User.updateOne({_id:data.user},{ $inc: { cash: tb_detail.cash, point:tb_detail.point }})
+                                                .then(hasil=>{
+                                                    console.log(paidornot)
+                                                    res.send("Selamat Anda Mendapatkan Bonus point Sebesar"+tb_detail.point)
+                                                })
+                                                .catch(err=>{
+                                                    res.send(err)
+                                                })
+                                        }else{
+                                            res.send('data berhasi diedit')
+                                        }
                                     })
                                     .catch(err=>{
                                         res.send(err)
@@ -77,7 +95,7 @@ router.post('/',function (req,res) {
                             }else
                             if (tb_detail.point == 0) {
                                 var to_wallet = new Wallet({
-                                    user:data.user,
+                                    user:req.body.user,
                                     type:'cash',
                                     amount:tb_detail.cash,
                                     drcr:'debit',
@@ -85,13 +103,17 @@ router.post('/',function (req,res) {
                                 })
                                 to_wallet.save()
                                     .then(hasil=>{
-                                        User.updateOne({_id:data.user},{ $inc: { cash: tb_detail.cash, point:tb_detail.point }})
-                                            .then(hasil=>{
-                                                res.send("Selamat Anda Mendapatkan Bonus cash Sebesar"+tb_detail.cash)
-                                            })
-                                            .catch(err=>{
-                                                res.send(err)
-                                            })
+                                        if (paidornot == 0) {
+                                            User.updateOne({_id:data.user},{ $inc: { cash: tb_detail.cash, point:tb_detail.point }})
+                                                .then(hasil=>{
+                                                    res.send("Selamat Anda Mendapatkan Bonus cash Sebesar"+tb_detail.cash)
+                                                })
+                                                .catch(err=>{
+                                                    res.send(err)
+                                                })
+                                        }else{
+                                            res.send("data diupdate")
+                                        }
                                     })
                                     .catch(err=>{
                                         res.send(err)
