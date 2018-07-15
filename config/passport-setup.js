@@ -34,60 +34,6 @@ passport.use(
     },
     (accessToken,refreshToken,profile,done)=>{
         done(null,{token:accessToken,user_id:profile.id})
-        // User.findOne({googleId:profile.id}).then(currentUser=>{
-        //     if(currentUser){
-        //         //will be logged
-        //         console.log("already exist ")
-        //         // done(null,currentUser)
-        //         if (currentUser.active == 1) {
-        //             GlobalToken = jwt.sign({
-        //                 _id: currentUser._id,
-        //                 username: currentUser.username,
-        //                 active: currentUser.active,
-        //             },
-        //                 'secret', {
-        //                     expiresIn: '2h'
-        //                 }
-        //             );
-        //             console.log(GlobalToken)
-        //             done(null,currentUser)
-        //         } else {
-        //             return console.log('Gagal')
-        //         }
-        //     }else{
-        //         User.findOne({username:profile.emails[0].value})
-        //             .then(exGoogleid=>{
-        //                 if (exGoogleid) {
-        //                     User.updateOne({username:profile.emails[0].value},{$set:{googleId:profile.id}})
-        //                         .then(result=>{
-        //                             console.log(result)
-        //                             done(null,exGoogleid)
-        //                         })
-        //                         .catch(err=>{
-        //                             done(err)
-        //                         })
-        //                 }else{
-        //                     new User({
-        //                         username:profile.emails[0].value,
-        //                         googleId:profile.id,
-        //                         profile_picture:profile.photos[0].value,
-        //                         active:1,
-        //                     })
-        //                     .save().then(data=>{
-        //                         console.log(data)
-        //                         done(null,data)
-                                
-        //                     }).catch(err=>{
-        //                         console.log(err)
-        //                     })
-        //                 }
-        //             })
-                
-        //     }
-        // })
-        // .catch(err=>{
-        //     console.log(err)
-        // })
     })
 )
 
@@ -104,63 +50,6 @@ passport.use(new twitterStrategy({
   function(token, tokenSecret, profile, done) {
     console.log(tokenSecret)
     done(null,{token:token,user_id:profile.id,tokenSecret:tokenSecret})
-    // User.findOne({twitterId:profile.id}, function(err, user) {
-    //   if (user){
-    //       //console.log(currentUser)
-    //       //(null,user)
-    //     //   if (user.active == 1) {
-    //     //       GlobalToken = jwt.sign({
-    //     //           _id: user._id,
-    //     //           username: user.username,
-    //     //           active: user.active,
-    //     //       },
-    //     //           'secret', {
-    //     //               expiresIn: '2h'
-    //     //           }
-    //     //       );
-    //     //       console.log(GlobalToken)
-    //     //       done(null, profile.id)
-    //     //   } else {
-    //     //       return console.log('Gagal')
-    //     //   }
-    //       console.log('already exist')
-    //       done(null,user)
-    //     }else{
-    //         User.findOne({username:profile.emails[0].value})
-    //             .then(data=>{
-    //                 if (data) {
-    //                     User.updateOne({username:data.username},{$set:{twitterId:profile.id}})
-    //                         .then(addTwitterId=>{
-    //                             console.log(addTwitterId)
-    //                             done(null,data)
-    //                         })
-    //                         .catch(err=>{
-    //                             console.log(err)
-    //                             done(null,err)
-    //                         })
-    //                 }else{
-    //                     new User({
-    //                         username: profile.emails[0].value,
-    //                         twitterId: profile.id,
-    //                         active:1,
-    //                         profile_picture: profile.photos[0].value,
-    //                     })
-    //                         .save().then(data => {
-    //                             //console.log(data)
-    //                             done(null, data)
-    //                         }).catch(err => {
-    //                             console.log(err)
-    //                         })
-    //                     //done(null, data);
-    //                 }
-    //             })
-    //             .catch(err=>{
-    //                 done(err)
-    //             })
-            
-    //   }
-      
-    // });
   }
 ));
 
@@ -171,7 +60,7 @@ passport.use(new instagramStrategy({
     callbackURL: "/api/user/auth/instagram/redirect"
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log(profile)
+    done(null,{accesstoken:accessToken,user_id:profile.id})
   }
 ));
 

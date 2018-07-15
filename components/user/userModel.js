@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const UniqueValidator = require('mongoose-unique-validator')
+require("../../lib/connection")
 
 const UserSchema = new Schema({
     username:{
@@ -46,6 +47,6 @@ const UserSchema = new Schema({
 
 UserSchema.plugin(UniqueValidator)
 
-const UserModel = mongoose.model('users', UserSchema);
+const UserModel = mongoose.bagidata.model('users', UserSchema);
 
 module.exports = UserModel;

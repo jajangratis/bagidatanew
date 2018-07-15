@@ -61,6 +61,16 @@ router.get('/twitter/redirect',passport.authenticate('twitter'),(req,res)=>{
         })
 })
 
+router.get('/auth/instagram',
+  passport.authenticate('instagram'));
+
+router.get('/auth/instagram/callback', 
+  passport.authenticate('instagram', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  })
+
 
 router.get('/getalldata',function(req,res) {
     AccessToken.find({})

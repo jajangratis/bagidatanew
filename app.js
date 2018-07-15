@@ -22,6 +22,7 @@ const User_Personal_Information = require('./components/user/user_personal_infor
 const Detail_Personal_Information = require('./components/detail/detail_personal_informationController')
 const Group_Personal_Information = require('./components/group/group_personal_informationController')
 const AccessToken = require('./components/access_token/accesstokenController')
+const Crawled_data = require('./components/crawl/crawled_dataController')
 
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
@@ -38,6 +39,7 @@ app.use(passport.session())
 
 //connection
 require('./lib/connection');
+//require('./lib/crawl_connection');
 
 //body parser
 app.use(bodyParser.json());
@@ -55,6 +57,8 @@ app.use('/api/group/grouppersonalinformation',Group_Personal_Information)
 app.use('/api/wallet', Wallet);
 
 app.use('/api/access-token', AccessToken);
+
+app.use('/api/crawl',Crawled_data);
 
 // app.use('/api/gmail',Gmail)
 

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const userModel = require("../user/userModel");
+require("../../lib/connection")
 
 const WalletSchema = new Schema({
     user:{
@@ -26,6 +27,6 @@ const WalletSchema = new Schema({
 })
 
 
-const WalletModel = mongoose.model('wallet', WalletSchema);
+const WalletModel = mongoose.bagidata.model('wallet', WalletSchema);
 
 module.exports = WalletModel;
