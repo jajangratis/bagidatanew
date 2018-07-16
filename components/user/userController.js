@@ -145,6 +145,7 @@ router.post('/login',function(req, res){
     User.findOne({username:req.body.username}).exec().then(function(user){
         if (user===null) {
             res.status(422).send("username/password Tidak Valid")
+            console.log(user)
         }else{
             bcrypt.compare(req.body.password,user.password,function(err,hash) {
                 if(hash){

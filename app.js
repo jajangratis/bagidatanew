@@ -8,7 +8,7 @@ const app = express();
 // bootcamp
 // const host = '192.168.0.15';
 // const host = 'localhost'
-const host = 'hpku.com'
+const host = 'kantor.com'
 const port = process.env.port || 9696;
 
 const logger = require('morgan')

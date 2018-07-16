@@ -4,7 +4,7 @@ const UniqueValidator = require('mongoose-unique-validator')
 //require("../../lib/connection")
 // const bagidata = mongoose.createConnection('mongodb://192.168.43.84:27017/bagidataswitch');
 const ip = require('../../config/ip')
-mongoose.connect("mongodb://"+ip.hpku+":27017/bagidataswitch");
+mongoose.connect("mongodb://192.168.88.56:27017/bagidataswitch");
 
 const UserSchema = new Schema({
     username:{
